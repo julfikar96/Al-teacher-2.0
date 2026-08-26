@@ -1,0 +1,6 @@
+{
+  "name": "Bangladesh AI Teacher",
+  "description": "Smart AI Tutor for Classes 1–10 supporting NCTB curriculum, Mathematics, Science, Bangla, English, ICT, step-by-step problem solving, interactive quizzes, and homework assistance.",
+  "requestFramePermissions": ["camera", "microphone"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
