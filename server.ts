@@ -11,6 +11,9 @@ const PORT = 3000;
 
 app.use(express.json({ limit: "25mb" }));
 
+const apiRouter = express.Router();
+apiRouter.use(express.json({ limit: "25mb" }));
+
 function getGeminiClient(customApiKey?: string): GoogleGenAI | null {
   const key = customApiKey || process.env.GEMINI_API_KEY;
   if (!key) return null;
@@ -156,7 +159,7 @@ Teaching Rules:
    - Core teaching sequence: Understand -> Explain -> Demonstrate -> Practice -> Check -> Improve.`;
 
 // API Health
-app.get("/api/health", (_req: Request, res: Response) => {
+apiRouter.get("/health", (_req: Request, res: Response) => {
   const hasServerKey = Boolean(process.env.GEMINI_API_KEY);
   res.json({
     status: "ok",
@@ -166,7 +169,7 @@ app.get("/api/health", (_req: Request, res: Response) => {
 });
 
 // Test API Connection
-app.post("/api/test-connection", async (req: Request, res: Response) => {
+apiRouter.post("/test-connection", async (req: Request, res: Response) => {
   try {
     const { provider = "gemini", apiKey, apiEndpoint, model = "gemini-3.7-flash" } = req.body;
     const effectiveKey = apiKey || process.env.GEMINI_API_KEY;
@@ -246,7 +249,7 @@ app.post("/api/test-connection", async (req: Request, res: Response) => {
 });
 
 // Chat Endpoint
-app.post("/api/chat", async (req: Request, res: Response) => {
+apiRouter.post("/chat", async (req: Request, res: Response) => {
   try {
     const {
       message,
@@ -421,7 +424,7 @@ Current Student Context:
 });
 
 // Structured Quiz Generator Endpoint
-app.post("/api/quiz-generate", async (req: Request, res: Response) => {
+apiRouter.post("/quiz-generate", async (req: Request, res: Response) => {
   try {
     const {
       classLevel = "Class 8",
@@ -517,6 +520,10 @@ Provide exactly 4 options per question, the 0-indexed correct option index, and 
   }
 });
 
+// Mount the API Router on both /api (standard local & preview) and root / (in case serverless rewrites strip /api)
+app.use("/api", apiRouter);
+app.use(apiRouter);
+
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -537,4 +544,10 @@ async function startServer() {
   });
 }
 
-startServer();
+// Start standalone Express server when running outside Vercel Serverless environment
+if (!process.env.VERCEL) {
+  startServer();
+}
+
+export default app;
+export { app };
