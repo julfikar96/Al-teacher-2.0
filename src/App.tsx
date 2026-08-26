@@ -181,7 +181,17 @@ export default function App() {
         }),
       });
 
-      const data = await response.json();
+      let data: any;
+      const responseText = await response.text();
+      try {
+        data = JSON.parse(responseText);
+      } catch (parseErr) {
+        throw new Error(
+          response.status === 404
+            ? 'API endpoint (/api/chat) not found on server.'
+            : `Server returned unexpected response (${response.status}): ${responseText.slice(0, 100)}`
+        );
+      }
 
       if (data.noKey) {
         // Friendly No-Key explanation message

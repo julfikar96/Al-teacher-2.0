@@ -81,7 +81,8 @@ export const InteractiveQuizModal: React.FC<InteractiveQuizModalProps> = ({
             apiSettings,
           }),
         });
-        const data = await response.json();
+        const text = await response.text();
+        const data = JSON.parse(text);
         if (data.success && data.questions && data.questions.length > 0) {
           quizList = data.questions;
         }

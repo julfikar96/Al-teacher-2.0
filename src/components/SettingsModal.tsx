@@ -70,7 +70,17 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
         }),
       });
 
-      const data = await response.json();
+      let data: any;
+      const responseText = await response.text();
+      try {
+        data = JSON.parse(responseText);
+      } catch (e) {
+        throw new Error(
+          response.status === 404
+            ? 'API endpoint (/api/test-connection) not found (404).'
+            : `Unexpected server response (${response.status})`
+        );
+      }
       setTestStatus({
         testing: false,
         success: data.success,
